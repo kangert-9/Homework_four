@@ -1,28 +1,29 @@
 package com.example.homework
 
 import android.os.Bundle
-import com.example.homework.databinding.ActivityMainBinding
-import moxy.MvpAppCompatActivity
-import moxy.ktx.moxyPresenter
+import androidx.appcompat.app.AppCompatActivity
+import com.example.homework.App.Navigation.navigatorHolder
+import com.example.homework.App.Navigation.router
+import com.example.homework.mvpusers.UsersScreen
+import com.example.homework.navigation.CustomNavigator
 
-class MainActivity : MvpAppCompatActivity(), MainView {
+class MainActivity : AppCompatActivity() {
+    private val navigator = CustomNavigator(activity = this, R.id.container)
 
-    private var vb: ActivityMainBinding? = null
-    private val presenter: MainPresenter by moxyPresenter {
-        MainPresenter()
+    override fun onResumeFragments() {
+        super.onResumeFragments()
+        navigatorHolder.setNavigator(navigator)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        vb = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(vb?.root)
-        val edit = vb?.edit
-        vb?.button?.setOnClickListener {
-            presenter.save(edit?.text.toString().toInt())
+        if (savedInstanceState == null) {
+            router.navigateTo(UsersScreen)
         }
     }
 
-    override fun showNewNumber(number: Int) {
-        vb?.textView?.text = number.toString()
+    override fun onPause() {
+        navigatorHolder.removeNavigator()
+        super.onPause()
     }
 }
